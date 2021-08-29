@@ -1,0 +1,33 @@
+import pandas as pd
+import mysql.connector as connection
+from mysql.connector import Error
+from pandas import Series
+
+empdata = pd.read_csv("C:\\Users\\nanid\\OneDrive\\Desktop\\Student details.csv",index_col= False, sep = '/t',header= None)
+empdata.head()
+try:
+    conn = connection.connect(host ="127.0.0.1", database = "employee",user = "root" ,passwd = "Divakar@123", use_pure=True)
+    if conn.is_connected():
+        cursor = conn.cursor()
+        cursor.execute("select database();")
+        record = cursor.fetchone()
+        print("Connected to database:",record)
+        cursor.execute("DROP TABLE IF EXISTS employee_data;")
+        print("Creating table")
+
+        cursor.execute("CREATE TABLE employee_data(first_name varchar(255),last_name varchar(255),company_name varchar(255))")
+        print("Table is Created")
+
+
+        #Loop through dataFrame
+        for i,row in empdata.iterrows():
+            sql = ("INSERT INTO employee.employee_data VALUES(%s,%s,%s)")
+            cursor.execute(sql,tuple(row))
+            print("Record Inserted")
+            conn.commit()
+
+except Error as e:
+    print("MYSQL connection not established",e)
+
+
+
